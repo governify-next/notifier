@@ -14,4 +14,9 @@ export const bootEnv = {
 
     // Database URIs
     MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/governify-next',
+
+    // JWT configuration
+    JWT_SECRET: process.env.JWT_SECRET || 'governify_next_secret_key',
+    JWT_ISSUER: process.env.JWT_ISSUER || 'authenticator',
+    JWT_AUDIENCE: process.env.JWT_AUDIENCE || 'governify-next',
 };
