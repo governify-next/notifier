@@ -1,6 +1,6 @@
-# Express TypeScript Boilerplate
+# Notifier
 
-A layered Express API boilerplate with TypeScript (Requires Node.js 24+ and MongoDB)
+Governify's Notifier microservice. Requires Node.js 24+ and MongoDB.
 
 ## Scripts
 
