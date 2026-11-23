@@ -21,201 +21,82 @@ paths:
                                 properties:
                                     status:
                                         type: string
-    /api/v1/users:
-        get:
-            tags:
-                - Users
-            summary: List all users
-            responses:
-                '200':
-                    description: A list of users
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    data:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/User'
-                                    message:
-                                        type: string
-                                    success:
-                                        type: boolean
+    /api/v1/emails:
         post:
             tags:
-                - Users
-            summary: Create a new user
+                - Emails
+            summary: Send an email through Resend
+            security:
+                - serviceBearerAuth: []
             requestBody:
                 required: true
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UserInput'
+                            type: object
+                            required: [to, subject]
+                            properties:
+                                to:
+                                    oneOf:
+                                        - type: string
+                                          format: email
+                                        - type: array
+                                          minItems: 1
+                                          maxItems: 50
+                                          items:
+                                              type: string
+                                              format: email
+                                subject:
+                                    type: string
+                                    minLength: 1
+                                text:
+                                    type: string
+                                html:
+                                    type: string
+                            anyOf:
+                                - required: [text]
+                                  properties:
+                                      text:
+                                          minLength: 1
+                                - required: [html]
+                                  properties:
+                                      html:
+                                          minLength: 1
+                        example:
+                            to: recipient@example.com
+                            subject: Governance report
+                            text: Your governance report is ready.
             responses:
-                '201':
-                    description: User created
+                '202':
+                    description: Resend accepted the email
                     content:
                         application/json:
                             schema:
                                 type: object
                                 properties:
-                                    data:
-                                        $ref: '#/components/schemas/User'
-                                    message:
-                                        type: string
                                     success:
                                         type: boolean
-                '409':
-                    description: Email already exists
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                '500':
-                    description: Internal server error
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-    /api/v1/users/{id}:
-        get:
-            tags:
-                - Users
-            summary: Get user by ID
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-                  description: User ID (Mongo ObjectId)
-            responses:
-                '200':
-                    description: User found
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
                                     data:
-                                        $ref: '#/components/schemas/User'
-                                    message:
-                                        type: string
-                                    success:
-                                        type: boolean
-                '404':
-                    description: User not found
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-        put:
-            tags:
-                - Users
-            summary: Update user by ID
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-                  description: User ID (Mongo ObjectId)
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UserInput'
-            responses:
-                '200':
-                    description: User updated
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    data:
-                                        $ref: '#/components/schemas/User'
-                                    message:
-                                        type: string
-                                    success:
-                                        type: boolean
-                '404':
-                    description: User not found
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-        delete:
-            tags:
-                - Users
-            summary: Delete user by ID
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-                  description: User ID (Mongo ObjectId)
-            responses:
-                '200':
-                    description: User deleted
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    data:
-                                        type: 'null'
-                                    message:
-                                        type: string
-                                    success:
-                                        type: boolean
-                '404':
-                    description: User not found
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Error'
+                                        type: object
+                                        required: [id]
+                                        properties:
+                                            id:
+                                                type: string
+                '400':
+                    description: Invalid email payload
+                '401':
+                    description: Missing or invalid service JWT
+                '502':
+                    description: Resend did not confirm acceptance
 
 components:
+    securitySchemes:
+        serviceBearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+            description: Service access token issued by Governify Authenticator.
     schemas:
-        User:
-            type: object
-            required:
-                - _id
-                - name
-                - email
-            properties:
-                _id:
-                    type: string
-                    description: MongoDB ObjectId
-                name:
-                    type: string
-                email:
-                    type: string
-                password:
-                    type: string
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-        UserInput:
-            type: object
-            required:
-                - name
-                - email
-                - password
-            properties:
-                name:
-                    type: string
-                email:
-                    type: string
-                password:
-                    type: string
         Error:
             type: object
             properties:
