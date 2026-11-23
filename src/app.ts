@@ -1,6 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import { healthRoutes } from './routes/health.routes.js';
+import { emailRoutes } from './routes/email.routes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
@@ -17,6 +18,7 @@ const swaggerDocument = YAML.load(swaggerPath);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(healthRoutes);
+app.use('/api/v1/emails', emailRoutes);
 app.use(errorHandler);
 
 export default app;
