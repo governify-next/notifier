@@ -5,4 +5,5 @@ import { validateSendEmail } from '../middlewares/email.validator.js';
 
 export const emailRoutes = Router();
 
+emailRoutes.get('/', checkServiceAuthentication, emailController.getEmails);
 emailRoutes.post('/', checkServiceAuthentication, validateSendEmail, emailController.sendEmail);

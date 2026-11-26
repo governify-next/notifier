@@ -28,6 +28,10 @@ including the sender, recipients, subject, and message body. The record starts
 as `IN_PROGRESS`. Resend acceptance sets it to `SENT` and stores the Resend
 ID. An error from Resend or an unconfirmed send sets it to `FAILED`.
 
+## List email attempts
+
+`GET /api/v1/emails` requires a service JWT and returns all stored emails.
+
 ## Scripts
 
 - `npm install` — Install dependencies

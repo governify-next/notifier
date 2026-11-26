@@ -22,6 +22,26 @@ paths:
                                     status:
                                         type: string
     /api/v1/emails:
+        get:
+            tags:
+                - Emails
+            summary: List stored emails
+            security:
+                - serviceBearerAuth: []
+            responses:
+                '200':
+                    description: All stored emails.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: '#/components/schemas/EmailAttempt'
+                '401':
+                    description: Missing or invalid service JWT
         post:
             tags:
                 - Emails
@@ -96,6 +116,36 @@ components:
             bearerFormat: JWT
             description: Service access token issued by Governify Authenticator.
     schemas:
+        EmailAttempt:
+            type: object
+            required: [_id, from, to, subject, status, createdAt, updatedAt]
+            properties:
+                _id:
+                    type: string
+                from:
+                    type: string
+                to:
+                    type: array
+                    items:
+                        type: string
+                        format: email
+                subject:
+                    type: string
+                text:
+                    type: string
+                html:
+                    type: string
+                status:
+                    type: string
+                    enum: [IN_PROGRESS, SENT, FAILED]
+                resendId:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
         Error:
             type: object
             properties:

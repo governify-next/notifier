@@ -1,7 +1,7 @@
 import { Resend, type CreateEmailOptions } from 'resend';
 import { bootEnv } from '../config/bootConfig.js';
 import { EmailStatus, type IEmail } from '../models/email.model.js';
-import { completeEmailAttempt, createEmailAttempt } from '../repositories/email.repository.js';
+import * as emailRepository from '../repositories/email.repository.js';
 import { StdError } from '../utils/customErrors.js';
 
 const { RESEND_API_KEY, RESEND_FROM_EMAIL } = bootEnv;
@@ -19,6 +19,10 @@ export function initializeResend() {
     }
 }
 
+export async function getEmails() {
+    return await emailRepository.getEmails();
+}
+
 export async function sendEmail({
     to,
     subject,
@@ -28,7 +32,7 @@ export async function sendEmail({
     if (!resend) throw new Error('Resend client has not been initialized');
 
     const opts = { from: RESEND_FROM_EMAIL, to, subject, text, html };
-    const attempt = await createEmailAttempt(opts);
+    const attempt = await emailRepository.createEmailAttempt(opts);
     const result = await resend.emails
         .send(opts as CreateEmailOptions, { signal: AbortSignal.timeout(10_000) })
         .catch(() => null);
@@ -38,7 +42,7 @@ export async function sendEmail({
         ? { status: EmailStatus.SENT as const, resendId: data.id }
         : { status: EmailStatus.FAILED as const };
 
-    await completeEmailAttempt(attempt._id, outcome)
+    await emailRepository.completeEmailAttempt(attempt._id, outcome);
 
     if (!data) {
         throw new StdError({

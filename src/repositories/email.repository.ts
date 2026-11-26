@@ -1,6 +1,10 @@
 import { type Types } from 'mongoose';
 import Email, { EmailStatus, type IEmail } from '../models/email.model.js';
 
+export const getEmails = async () => {
+    return await Email.find();
+};
+
 export const createEmailAttempt = async (
     data: Pick<IEmail, 'from' | 'to' | 'subject' | 'text' | 'html'>,
 ) => {
