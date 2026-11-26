@@ -37,8 +37,12 @@ paths:
                             required: [to, subject]
                             properties:
                                 to:
-                                    type: string
-                                    format: email
+                                    type: array
+                                    minItems: 1
+                                    maxItems: 50
+                                    items:
+                                        type: string
+                                        format: email
                                 subject:
                                     type: string
                                     minLength: 1
@@ -56,7 +60,9 @@ paths:
                                       html:
                                           minLength: 1
                         example:
-                            to: recipient@example.com
+                            to:
+                                - recipient@example.com
+                                - another@example.com
                             subject: Governance report
                             text: Your governance report is ready.
             responses:

@@ -13,13 +13,13 @@ Send `POST /api/v1/emails` with a service JWT in
 
 ```json
 {
-    "to": "recipient@example.com",
+    "to": ["recipient@example.com", "another@example.com"],
     "subject": "Governance report",
     "text": "Your governance report is ready."
 }
 ```
 
-`to` accepts a valid email address. Include `text`,
+`to` requires an array of 1 to 50 valid email addresses. Include `text`,
 `html`, or both. A `202 Accepted` response includes the Resend email ID in
 `data.id`.
 

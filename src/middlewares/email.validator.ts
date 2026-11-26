@@ -3,7 +3,8 @@ import { type Request, type Response, type NextFunction } from 'express';
 import { ValidationError } from '../utils/customErrors.js';
 
 export const validateSendEmail = [
-    body('to').isEmail().withMessage('Recipient must be a valid email address'),
+    body('to').isArray({ min: 1, max: 50 }).withMessage('Provide an array of 1 to 50 recipients'),
+    body('to.*').isEmail().withMessage('Each recipient must be a valid email address'),
     body('subject').notEmpty().withMessage('Subject is required'),
     oneOf([body('text').notEmpty(), body('html').notEmpty()], {
         message: 'Either text or html content must be provided',
