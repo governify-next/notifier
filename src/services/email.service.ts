@@ -1,5 +1,7 @@
 import { Resend, type CreateEmailOptions } from 'resend';
 import { bootEnv } from '../config/bootConfig.js';
+import { EmailStatus, type IEmail } from '../models/email.model.js';
+import { completeEmailAttempt, createEmailAttempt } from '../repositories/email.repository.js';
 import { StdError } from '../utils/customErrors.js';
 
 const { RESEND_API_KEY, RESEND_FROM_EMAIL } = bootEnv;
@@ -22,15 +24,23 @@ export async function sendEmail({
     subject,
     text,
     html,
-}: Pick<CreateEmailOptions, 'to' | 'subject' | 'text' | 'html'>) {
+}: Pick<IEmail, 'to' | 'subject' | 'text' | 'html'>) {
     if (!resend) throw new Error('Resend client has not been initialized');
 
-    const payload = { from: RESEND_FROM_EMAIL, to, subject, text, html } as CreateEmailOptions;
+    const opts = { from: RESEND_FROM_EMAIL, to, subject, text, html };
+    const attempt = await createEmailAttempt(opts);
     const result = await resend.emails
-        .send(payload, { signal: AbortSignal.timeout(10_000) })
+        .send(opts as CreateEmailOptions, { signal: AbortSignal.timeout(10_000) })
         .catch(() => null);
 
-    if (!result || result.error) {
+    const data = result?.data;
+    const outcome = data
+        ? { status: EmailStatus.SENT as const, resendId: data.id }
+        : { status: EmailStatus.FAILED as const };
+
+    await completeEmailAttempt(attempt._id, outcome)
+
+    if (!data) {
         throw new StdError({
             message: 'Resend did not confirm email acceptance',
             httpStatus: 502,
@@ -38,5 +48,5 @@ export async function sendEmail({
         });
     }
 
-    return result.data;
+    return data;
 }

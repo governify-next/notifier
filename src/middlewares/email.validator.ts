@@ -4,8 +4,14 @@ import { ValidationError } from '../utils/customErrors.js';
 
 export const validateSendEmail = [
     body('to').isArray({ min: 1, max: 50 }).withMessage('Provide an array of 1 to 50 recipients'),
-    body('to.*').isEmail().withMessage('Each recipient must be a valid email address'),
-    body('subject').notEmpty().withMessage('Subject is required'),
+    body('to.*')
+        .isString()
+        .bail()
+        .isEmail()
+        .withMessage('Each recipient must be a valid email address'),
+    body('subject').isString().bail().notEmpty().withMessage('Subject is required'),
+    body('text').optional().isString(),
+    body('html').optional().isString(),
     oneOf([body('text').notEmpty(), body('html').notEmpty()], {
         message: 'Either text or html content must be provided',
     }),

@@ -23,6 +23,11 @@ Send `POST /api/v1/emails` with a service JWT in
 `html`, or both. A `202 Accepted` response includes the Resend email ID in
 `data.id`.
 
+Each send attempt is saved in MongoDB in the `emails` collection,
+including the sender, recipients, subject, and message body. The record starts
+as `IN_PROGRESS`. Resend acceptance sets it to `SENT` and stores the Resend
+ID. An error from Resend or an unconfirmed send sets it to `FAILED`.
+
 ## Scripts
 
 - `npm install` — Install dependencies
